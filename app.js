@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
-
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -12,6 +12,16 @@ app.use(express.json());
 
 const swaggerFilePath = path.join(__dirname, 'swagger.json');
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerFilePath, 'utf8'));
+
+const corsOptions = {
+  origin: '*', // Allow all origins. Replace '*' with specific domains as needed
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// Use CORS middleware with the configured options
+app.use(cors(corsOptions));
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
