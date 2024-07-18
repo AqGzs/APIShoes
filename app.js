@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
+
 require('dotenv').config();
 
 const app = express();
+
 app.use(express.json());
 
 const swaggerFilePath = path.join(__dirname, 'swagger.json');

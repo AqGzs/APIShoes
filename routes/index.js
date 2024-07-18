@@ -10,3 +10,5 @@ router.use('/auth', authRoutes);
 router.use('/favorites', favoritesRoutes);
 
 module.exports = router;
+
+
