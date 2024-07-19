@@ -76,6 +76,9 @@
           "dob": {
             "type": "string",
             "format": "date"
+          },
+          "imageUrl": {
+            "type": "string"
           }
         },
         "required": ["name", "email", "password"]
@@ -458,7 +461,7 @@
         }
       }
     },
-      "/auth/register": {
+    "/auth/register": {
     "post": {
       "summary": "User registration",
       "requestBody": {
@@ -993,7 +996,76 @@
           }
         }
       }
+    },
+      "/users/{id}": {
+      "get": {
+        "summary": "Get user details by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user details by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+     }
     }
-  }
 }
+
 

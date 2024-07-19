@@ -5,9 +5,23 @@ const User = require('../models/User');
 
 
 router.post('/login', async (req, res) => {
-  const { email, password } = new auth(req.body) ;
-  // Logic xử lý đăng nhập
-  res.status(200).json({ token: 'dummy_token' });
+  const { email, password } = req.body ;
+  // Logic xử lý đăn g nhập
+    try{
+      const user = await User.findOne({email});
+      if(!user){
+        return res.status(401).json({message:'Email hoặc mật khẩu không chính xác'});
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if(!isMatch){
+        return res.status(401).json({message:'Email hoặc mật khẩu không chính xác'});
+      }
+      const token = 'dummy_token'
+      res.status(200).json({ token });
+    }
+    catch (error){
+      res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+    }
 });
 
 router.post('/register', async (req, res) => {

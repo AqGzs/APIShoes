@@ -16,7 +16,17 @@ const swaggerDocument = JSON.parse(fs.readFileSync(swaggerFilePath, 'utf8'));
 const corsOptions = {
   origin: '*', // Allow all origins. Replace '*' with specific domains as needed
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Accept',
+
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Headers',
+ 
+  
+  ],
 };
 
 // Use CORS middleware with the configured options
@@ -26,7 +36,11 @@ app.use(cors(corsOptions));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const uri = process.env.MONGODB_URI;
-mongoose.connect(uri)
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  
+})
   .then(() => {
     console.log('Connected to MongoDB');
   })
