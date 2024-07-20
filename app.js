@@ -5,7 +5,6 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
-
 const app = express();
 
 app.use(express.json());
@@ -20,18 +19,15 @@ const corsOptions = {
     'Content-Type',
     'Authorization',
     'Accept',
-
     'Access-Control-Allow-Origin',
     'Access-Control-Allow-Methods',
     'Access-Control-Allow-Headers',
- 
-  
+    'Access-Control-Allow-Credentials',
   ],
 };
 
 // Use CORS middleware with the configured options
 app.use(cors(corsOptions));
-
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -39,7 +35,6 @@ const uri = process.env.MONGODB_URI;
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  
 })
   .then(() => {
     console.log('Connected to MongoDB');
@@ -49,7 +44,8 @@ mongoose.connect(uri, {
     process.exit(1);
   });
 
-const routes = require('./routes');
+// Import the routes index file
+const routes = require('./routes/index'); // Ensure the path is correct
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 3000;
