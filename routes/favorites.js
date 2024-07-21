@@ -1,13 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.json([{ name: 'Adidas Ultraboost', brand: 'Adidas', size: [42], price: 150, stock: 5, colors: ['black', 'white'], imageUrl: 'https://example.com/image.jpg' }]);
+let favorites = []; // Mảng lưu trữ các sản phẩm yêu thích
+
+// Endpoint để lấy các sản phẩm yêu thích
+router.get('/favorites', (req, res) => {
+  res.json(favorites);
 });
 
-router.post('/', (req, res) => {
+// Endpoint để thêm sản phẩm vào danh sách yêu thích
+router.post('/favorite', (req, res) => {
   const { shoeId } = req.body;
-  res.status(201).json({ message: 'Shoe added to favorites', shoeId });
+  if (shoeId) {
+    favorites.push(shoeId);
+    res.status(201).json({ message: 'Shoe added to favorites', shoeId });
+  } else {
+    res.status(400).json({ message: 'Shoe ID is required' });
+  }
+});
+
+// Endpoint để xóa sản phẩm khỏi danh sách yêu thích
+router.delete('/favorite/:id', (req, res) => {
+  const { id } = req.params;
+  favorites = favorites.filter(fav => fav !== id);
+  res.status(200).json({ message: 'Shoe removed from favorites', id });
 });
 
 module.exports = router;
