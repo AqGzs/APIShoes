@@ -56,4 +56,18 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const { search } = req.query;
+    let query = {};
+    if (search) {
+      query = { name: new RegExp(search, 'i') }; // Tìm kiếm không phân biệt chữ hoa/chữ thường
+    }
+    const shoes = await Shoe.find(query);
+    res.json(shoes);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;
