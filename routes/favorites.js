@@ -1,29 +1,30 @@
 const express = require('express');
 const router = express.Router();
-
-let favorites = []; // Mảng lưu trữ các sản phẩm yêu thích
+const Shoe = require('../models/Shoe'); // Ensure the path is correct
 
 // Endpoint để lấy các sản phẩm yêu thích
-router.get('/favorites', (req, res) => {
-  res.json(favorites);
-});
-
-// Endpoint để thêm sản phẩm vào danh sách yêu thích
-router.post('/favorite', (req, res) => {
-  const { shoeId } = req.body;
-  if (shoeId) {
-    favorites.push(shoeId);
-    res.status(201).json({ message: 'Shoe added to favorites', shoeId });
-  } else {
-    res.status(400).json({ message: 'Shoe ID is required' });
+router.get('/', async (req, res) => {
+  try {
+    const favorites = await Shoe.find(); // Assuming you store all shoes in Shoe collection
+    res.json(favorites);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-// Endpoint để xóa sản phẩm khỏi danh sách yêu thích
-router.delete('/favorite/:id', (req, res) => {
-  const { id } = req.params;
-  favorites = favorites.filter(fav => fav !== id);
-  res.status(200).json({ message: 'Shoe removed from favorites', id });
+// Endpoint để thêm sản phẩm vào danh sách yêu thích
+router.post('/', async (req, res) => {
+  const { shoeId } = req.body;
+  try {
+    const shoe = await Shoe.findById(shoeId);
+    if (shoe) {
+      res.status(201).json({ message: 'Shoe added to favorites', shoe });
+    } else {
+      res.status(404).json({ message: 'Shoe not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;
