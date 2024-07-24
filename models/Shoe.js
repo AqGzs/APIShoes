@@ -1,6 +1,5 @@
 // shoe.js
 const mongoose = require('mongoose');
-const Stock = require('./Stock'); // Import the Stock model
 
 const shoeSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -8,7 +7,8 @@ const shoeSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   stocks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Stock' }], 
   colors: { type: [String], required: true },
-  imageUrl: { type: String, required: true }
+  imageUrl: { type: String, required: true },
+  discriptions: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Shoe', shoeSchema);

@@ -57,9 +57,12 @@
           },
           "imageUrl": {
             "type": "string"
+          },
+          "discriptions": {
+            "type": "string"
           }
         },
-        "required": ["name", "brand", "price", "stocks", "colors", "imageUrl"]
+        "required": ["name", "brand", "price", "stocks", "colors", "imageUrl","discriptions"]
       },
       "User": {
         "type": "object",
@@ -725,8 +728,9 @@
           }
         }
       },
+      "/cart/item/{id}": {
       "put": {
-        "summary": "Update a cart by ID",
+        "summary": "Update a cart by ID cart",
         "parameters": [
           {
             "name": "id",
@@ -762,7 +766,8 @@
             "description": "Cart not found"
           }
         }
-      },
+      }
+    } ,
       "delete": {
         "summary": "Delete a cart by ID",
         "parameters": [
