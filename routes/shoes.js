@@ -1,11 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Shoe = require('../models/Shoe');
+const Stock = require('../models/Stock');
 
-// Tạo một đôi giày mới
 router.post('/', async (req, res) => {
   try {
-    const newShoe = new Shoe(req.body);
+    // Create new stock entries
+    const stockPromises = req.body.stocks.map(stock => new Stock(stock).save());
+    const stocks = await Promise.all(stockPromises);
+    const stockIds = stocks.map(stock => stock._id);
+
+    const newShoe = new Shoe({ ...req.body, stocks: stockIds });
     await newShoe.save();
     res.status(201).json(newShoe);
   } catch (error) {
@@ -13,70 +18,63 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Lấy tất cả các đôi giày
+router.put('/:id', async (req, res) => {
+  try {
+    console.log("Received payload for update:", req.body);
+    const shoe = await Shoe.findById(req.params.id);
+    if (shoe == null) {
+      return res.status(404).json({ message: 'Cannot find shoe' });
+    }
+
+    if (req.body.stocks != null) {
+      await Stock.deleteMany({ _id: { $in: shoe.stocks } });
+      const stocks = await Stock.insertMany(req.body.stocks);
+      shoe.stocks = stocks.map(stock => stock._id);
+    }
+
+    for (const key in req.body) {
+      if (req.body[key] != null && key !== 'stocks') {
+        shoe[key] = req.body[key];
+      }
+    }
+
+    const updatedShoe = await shoe.save();
+    res.json(updatedShoe);
+  } catch (error) {
+    console.error("Error updating shoe:", error);
+    res.status(400).json({ message: error.message, error });
+  }
+});
+
+// Get all shoes
 router.get('/', async (req, res) => {
   try {
-    const shoes = await Shoe.find();
+    const shoes = await Shoe.find().populate('stocks');
     res.json(shoes);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Lấy chi tiết một đôi giày theo ID
+// Get shoe by ID
 router.get('/:id', async (req, res) => {
   try {
-    const shoe = await Shoe.findById(req.params.id);
+    const shoe = await Shoe.findById(req.params.id).populate('stocks');
     if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
-    res.json(shoe);
+    const totalStock = shoe.stocks.reduce((acc, stock) => acc + stock.quantity, 0);
+    res.json({ ...shoe.toObject(), totalStock });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Cập nhật thông tin một đôi giày
-router.put('/:id', async (req, res) => {
-  try {
-    const shoe = await Shoe.findById(req.params.id);
-    if (shoe == null) {
-      return res.status(404).json({ message: 'Cannot find shoe' });
-    }
-
-    if (req.body.name != null) {
-      shoe.name = req.body.name;
-    }
-    if (req.body.brand != null) {
-      shoe.brand = req.body.brand;
-    }
-    if (req.body.price != null) {
-      shoe.price = req.body.price;
-    }
-    if (req.body.stocks != null) {
-      shoe.stocks = req.body.stocks;
-    }
-    if (req.body.colors != null) {
-      shoe.colors = req.body.colors;
-    }
-    if (req.body.imageUrl != null) {
-      shoe.imageUrl = req.body.imageUrl;
-    }
-    if (req.body.discriptions != null) {
-      shoe.discriptions = req.body.discriptions;
-    }
-
-    const updatedShoe = await shoe.save();
-    res.json(updatedShoe);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-
-// Xóa một đôi giày theo ID
+// Delete shoe by ID
 router.delete('/:id', async (req, res) => {
   try {
     const shoe = await Shoe.findByIdAndDelete(req.params.id);
     if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
+    // Optionally, delete associated stocks
+    await Stock.deleteMany({ _id: { $in: shoe.stocks } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ message: error.message });
