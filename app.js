@@ -29,7 +29,7 @@ const corsOptions = {
 
 // Use CORS middleware with the configured options
 app.use(cors(corsOptions));
- 
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const uri = process.env.MONGODB_URI;
