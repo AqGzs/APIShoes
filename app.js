@@ -4,11 +4,12 @@ const swaggerUi = require('swagger-ui-express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
 
 app.use(express.json());
-
+app.use(bodyParser.json());
 const swaggerFilePath = path.join(__dirname, 'swagger.json');
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerFilePath, 'utf8'));
 
@@ -45,7 +46,7 @@ mongoose.connect(uri, {
   });
 
 // Import the routes index file
-const routes = require('./routes/index'); // Ensure the path is correct
+const routes = require('./routes'); // Ensure the path is correct
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 3000;

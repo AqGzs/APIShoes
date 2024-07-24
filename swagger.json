@@ -13,6 +13,21 @@
   ],
   "components": {
     "schemas": {
+     "Stock": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        },
+        "required": ["id", "size", "quantity"]
+      },
       "Shoe": {
         "type": "object",
         "properties": {
@@ -25,17 +40,14 @@
           "brand": {
             "type": "string"
           },
-          "size": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
           "price": {
             "type": "number"
           },
-          "stock": {
-            "type": "integer"
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Stock"
+            }
           },
           "colors": {
             "type": "array",
@@ -45,9 +57,12 @@
           },
           "imageUrl": {
             "type": "string"
+          },
+          "discriptions": {
+            "type": "string"
           }
         },
-        "required": ["name", "brand", "size", "price", "stock", "colors", "imageUrl"]
+        "required": ["name", "brand", "price", "stocks", "colors", "imageUrl","discriptions"]
       },
       "User": {
         "type": "object",
@@ -92,14 +107,15 @@
           "shoeId": {
             "type": "string"
           },
-          "quantity": {
-            "type": "string"
-          },
+        
           "priceShoe": {
             "type": "number"
+          },
+          "stock": {
+            "$ref": "#/components/schemas/Stock"
           }
         },
-        "required": ["orderId", "shoeId", "quantity", "priceShoe"]
+        "required": ["orderId", "shoeId",  "priceShoe", "stock"]
       },
       "Order": {
         "type": "object",
@@ -130,18 +146,19 @@
         },
         "required": ["userId", "items", "total", "dateOrder", "status"]
       },
-      "CartItem": {
+    "CartItem": {
         "type": "object",
         "properties": {
           "shoeId": {
             "type": "string"
           },
-          "quantity": {
-            "type": "integer"
+          "stock": {
+            "$ref": "#/components/schemas/Stock"
           }
         },
-        "required": ["shoeId", "quantity"]
+        "required": ["shoeId", "stock"]
       },
+
       "Cart": {
         "type": "object",
         "properties": {
@@ -202,22 +219,11 @@
     }
   },
   "paths": {
-    "/shoes": {
-      "post": {
-        "summary": "Create a new shoe",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Shoe"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Shoe created successfully",
+  "/shoes": {
+        "post": {
+          "summary": "Create a new shoe",
+          "requestBody": {
+            "required": true,
             "content": {
               "application/json": {
                 "schema": {
@@ -225,82 +231,82 @@
                 }
               }
             }
-          }
-        }
-      },
-      "get": {
-        "summary": "Get all shoes",
-        "responses": {
-          "200": {
-            "description": "A list of shoes",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
+          },
+          "responses": {
+            "201": {
+              "description": "Shoe created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
                     "$ref": "#/components/schemas/Shoe"
                   }
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/shoes/{id}": {
-      "get": {
-        "summary": "Get a single shoe by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A single shoe",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Shoe"
+        },
+        "get": {
+          "summary": "Get all shoes",
+          "responses": {
+            "200": {
+              "description": "A list of shoes",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Shoe"
+                    }
+                  }
                 }
               }
             }
-          },
-          "404": {
-            "description": "Shoe not found"
           }
         }
       },
-      "put": {
-        "summary": "Update a shoe by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+      "/shoes/{id}": {
+        "get": {
+          "summary": "Get a single shoe by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
               "schema": {
-                "$ref": "#/components/schemas/Shoe"
+                "type": "string"
               }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A single shoe",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Shoe"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Shoe not found"
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Shoe updated successfully",
+        "put": {
+          "summary": "Update a shoe by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
             "content": {
               "application/json": {
                 "schema": {
@@ -309,33 +315,44 @@
               }
             }
           },
-          "404": {
-            "description": "Shoe not found"
+          "responses": {
+            "200": {
+              "description": "Shoe updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Shoe"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Shoe not found"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete a shoe by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Shoe deleted successfully"
+            },
+            "404": {
+              "description": "Shoe not found"
+            }
           }
         }
       },
-      "delete": {
-        "summary": "Delete a shoe by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Shoe deleted successfully"
-          },
-          "404": {
-            "description": "Shoe not found"
-          }
-        }
-      }
-    },
     "/favorites": {
       "get": {
         "summary": "Get favorite shoes",
@@ -637,7 +654,7 @@
         }
       }
     },
-    "/carts": {
+  "/carts": {
       "post": {
         "summary": "Create a new cart",
         "requestBody": {
@@ -711,8 +728,9 @@
           }
         }
       },
+      "/cart/item/{id}": {
       "put": {
-        "summary": "Update a cart by ID",
+        "summary": "Update a cart by ID cart",
         "parameters": [
           {
             "name": "id",
@@ -748,7 +766,8 @@
             "description": "Cart not found"
           }
         }
-      },
+      }
+    } ,
       "delete": {
         "summary": "Delete a cart by ID",
         "parameters": [
