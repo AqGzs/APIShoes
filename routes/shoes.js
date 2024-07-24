@@ -34,16 +34,43 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Cập nhật một đôi giày theo ID
+// Cập nhật thông tin một đôi giày
 router.put('/:id', async (req, res) => {
   try {
-    const shoe = await Shoe.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
-    res.json(shoe);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+    const shoe = await Shoe.findById(req.params.id);
+    if (shoe == null) {
+      return res.status(404).json({ message: 'Cannot find shoe' });
+    }
+
+    if (req.body.name != null) {
+      shoe.name = req.body.name;
+    }
+    if (req.body.brand != null) {
+      shoe.brand = req.body.brand;
+    }
+    if (req.body.price != null) {
+      shoe.price = req.body.price;
+    }
+    if (req.body.stocks != null) {
+      shoe.stocks = req.body.stocks;
+    }
+    if (req.body.colors != null) {
+      shoe.colors = req.body.colors;
+    }
+    if (req.body.imageUrl != null) {
+      shoe.imageUrl = req.body.imageUrl;
+    }
+    if (req.body.discriptions != null) {
+      shoe.discriptions = req.body.discriptions;
+    }
+
+    const updatedShoe = await shoe.save();
+    res.json(updatedShoe);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });
+
 
 // Xóa một đôi giày theo ID
 router.delete('/:id', async (req, res) => {
