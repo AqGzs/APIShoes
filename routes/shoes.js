@@ -3,13 +3,15 @@ const router = express.Router();
 const Shoe = require('../models/Shoe');
 const Stock = require('../models/Stock');
 
+// Tạo một đôi giày mới
 router.post('/', async (req, res) => {
   try {
-    // Create new stock entries
-    const stockPromises = req.body.stocks.map(stock => new Stock(stock).save());
-    const stocks = await Promise.all(stockPromises);
+    const stockData = req.body.stocks;
+    const stocks = await Stock.insertMany(stockData.map(stock => ({
+      size: stock.size,
+      quantity: stock.quantity
+    })));
     const stockIds = stocks.map(stock => stock._id);
-
     const newShoe = new Shoe({ ...req.body, stocks: stockIds });
     await newShoe.save();
     res.status(201).json(newShoe);
@@ -18,34 +20,32 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Cập nhật thông tin một đôi giày
 router.put('/:id', async (req, res) => {
   try {
-    console.log("Received payload for update:", req.body);
     const shoe = await Shoe.findById(req.params.id);
-    if (shoe == null) {
+    if (!shoe) {
       return res.status(404).json({ message: 'Cannot find shoe' });
     }
 
-    if (req.body.stocks != null) {
-      await Stock.deleteMany({ _id: { $in: shoe.stocks } });
-      const stocks = await Stock.insertMany(req.body.stocks);
-      shoe.stocks = stocks.map(stock => stock._id);
-    }
+    const stockData = req.body.stocks;
+    const stocks = await Stock.insertMany(stockData);
+    const stockIds = stocks.map(stock => stock._id);
 
-    for (const key in req.body) {
-      if (req.body[key] != null && key !== 'stocks') {
-        shoe[key] = req.body[key];
-      }
-    }
+    shoe.name = req.body.name;
+    shoe.brand = req.body.brand;
+    shoe.price = req.body.price;
+    shoe.stocks = stockIds;
+    shoe.colors = req.body.colors;
+    shoe.imageUrl = req.body.imageUrl;
+    shoe.discriptions = req.body.discriptions;
 
     const updatedShoe = await shoe.save();
     res.json(updatedShoe);
   } catch (error) {
-    console.error("Error updating shoe:", error);
-    res.status(400).json({ message: error.message, error });
+    res.status(400).json({ message: error.message });
   }
 });
-
 // Get all shoes
 router.get('/', async (req, res) => {
   try {

@@ -220,10 +220,21 @@
   },
   "paths": {
   "/shoes": {
-        "post": {
-          "summary": "Create a new shoe",
-          "requestBody": {
-            "required": true,
+       "post": {
+        "summary": "Create a new shoe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Shoe"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created shoe",
             "content": {
               "application/json": {
                 "schema": {
@@ -232,19 +243,11 @@
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Shoe created successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Shoe"
-                  }
-                }
-              }
-            }
+          "400": {
+            "description": "Invalid input"
           }
-        },
+        }
+      },
         "get": {
           "summary": "Get all shoes",
           "responses": {
