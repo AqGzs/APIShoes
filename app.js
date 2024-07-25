@@ -47,7 +47,7 @@ mongoose.connect(uri, {
 
 // Import the routes index file
 const routes = require('./routes'); // Ensure the path is correct
-app.use('/api', routes);
+app.use('/', routes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

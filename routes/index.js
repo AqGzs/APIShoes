@@ -5,10 +5,17 @@ const shoesRoutes = require('./shoes');
 const authRoutes = require('./auth');
 const favoritesRoutes = require('./favorites');
 const userRoutes = require('./users');
-router.use('/shoes', shoesRoutes);
-router.use('/auth', authRoutes);
-router.use('/favorites', favoritesRoutes);
-router.use('/users',userRoutes);
+const cartRoutes = require('./carts');
+const paymentRoutes = require('./payment');
+
+
+
+router.use('/api/shoes', shoesRoutes);
+router.use('/api/auth', authRoutes);
+router.use('/api/favorites', favoritesRoutes);
+router.use('/api/users',userRoutes);
+router.use('/api/carts',cartRoutes); 
+router.use('/',paymentRoutes)
 
 module.exports = router;
 
