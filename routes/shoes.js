@@ -6,7 +6,6 @@ const Stock = require('../models/Stock');
 // Create a new shoe
 router.post('/', async (req, res) => {
   try {
-
     const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
 
     // Create stocks and save them to get their ObjectIds
@@ -23,13 +22,6 @@ router.post('/', async (req, res) => {
       descriptions
     });
 
-    const stockData = req.body.stocks;
-    const stocks = await Stock.insertMany(stockData.map(stock => ({
-      size: stock.size,
-      quantity: stock.quantity
-    })));
-    const stockIds = stocks.map(stock => stock._id);
-    const newShoe = new Shoe({ ...req.body, stocks: stockIds });
     await newShoe.save();
     res.status(201).json(newShoe);
   } catch (error) {
