@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Shoe = require('../models/Shoe');
+const Stock = require('../models/Stock');
 
 // Create a new shoe
 router.post('/', async (req, res) => {
   try {
+
     const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
 
     // Create stocks and save them to get their ObjectIds
@@ -21,6 +23,13 @@ router.post('/', async (req, res) => {
       descriptions
     });
 
+    const stockData = req.body.stocks;
+    const stocks = await Stock.insertMany(stockData.map(stock => ({
+      size: stock.size,
+      quantity: stock.quantity
+    })));
+    const stockIds = stocks.map(stock => stock._id);
+    const newShoe = new Shoe({ ...req.body, stocks: stockIds });
     await newShoe.save();
     res.status(201).json(newShoe);
   } catch (error) {
@@ -38,25 +47,25 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 // Get shoe details by ID
 router.get('/:id', async (req, res) => {
   try {
     const shoe = await Shoe.findById(req.params.id).populate('stocks');
     if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
-    res.json(shoe);
+
+    const totalStock = shoe.stocks.reduce((acc, stock) => acc + stock.quantity, 0);
+    res.json({ ...shoe.toObject(), totalStock });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-
 // Update a shoe by ID
 router.put('/:id', async (req, res) => {
   try {
-    const { name, brand, price, stocks, colors, imageUrl } = req.body;
+    const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
 
-    // Update stocks
+    // Update or create stocks
     await Promise.all(stocks.map(async (stock) => {
       if (stock._id) {
         await Stock.findByIdAndUpdate(stock._id, stock);
@@ -69,7 +78,7 @@ router.put('/:id', async (req, res) => {
 
     const updatedShoe = await Shoe.findByIdAndUpdate(
       req.params.id,
-      { name, brand, price, stocks: stocks.map(stock => stock._id), colors, imageUrl },
+      { name, brand, price, stocks: stocks.map(stock => stock._id), colors, imageUrl, descriptions },
       { new: true }
     ).populate('stocks');
 
@@ -80,21 +89,18 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
 // Delete a shoe by ID
 router.delete('/:id', async (req, res) => {
   try {
     const shoe = await Shoe.findByIdAndDelete(req.params.id);
     if (!shoe) return res.status(404).json({ message: 'Shoe not found' });
 
-    // Delete related stocks
+    // Optionally, delete associated stocks
     await Stock.deleteMany({ _id: { $in: shoe.stocks } });
-
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 module.exports = router;

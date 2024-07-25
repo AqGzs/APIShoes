@@ -220,10 +220,21 @@
   },
   "paths": {
   "/shoes": {
-        "post": {
-          "summary": "Create a new shoe",
-          "requestBody": {
-            "required": true,
+       "post": {
+        "summary": "Create a new shoe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Shoe"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created shoe",
             "content": {
               "application/json": {
                 "schema": {
@@ -232,19 +243,11 @@
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Shoe created successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Shoe"
-                  }
-                }
-              }
-            }
+          "400": {
+            "description": "Invalid input"
           }
-        },
+        }
+      },
         "get": {
           "summary": "Get all shoes",
           "responses": {
@@ -353,6 +356,129 @@
           }
         }
       },
+      "/stocks": {
+      "get": {
+        "summary": "Get all stocks",
+        "responses": {
+          "200": {
+            "description": "A list of stocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Stock"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new stock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Stock"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created stock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stock"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/{id}": {
+      "get": {
+        "summary": "Get a stock by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested stock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stock"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a stock by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Stock"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated stock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stock"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a stock by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The stock was deleted"
+          }
+        }
+      }
+    },
     "/favorites": {
       "get": {
         "summary": "Get favorite shoes",
@@ -1016,7 +1142,6 @@
         }
       }
     },
-  
     "/users/{id}": {
       "get": {
         "summary": "Get user details by ID",
@@ -1084,9 +1209,80 @@
           }
         }
       }
+    },
+    "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "responses": {
+          "200": {
+            "description": "A list of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get a user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
     }
   }
- }
-
-
+  }
+}
 
