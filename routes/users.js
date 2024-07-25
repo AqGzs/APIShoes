@@ -5,6 +5,7 @@ const User = require('../models/User');
 const router = express.Router();
 const secret = process.env.SECRET_KEY;
 
+
 // Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header('Authorization');
@@ -37,6 +38,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     if (!user) {
       console.log('User not found for ID:', req.params.id);
       return res.status(404).json({ message: 'User not found' });
+
     }
     res.status(200).json(user);
   } catch (error) {
@@ -56,6 +58,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
+
 
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -92,5 +95,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 module.exports = router;

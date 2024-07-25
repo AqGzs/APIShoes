@@ -5,7 +5,12 @@ const orderSchema = new mongoose.Schema({
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderItem', required: true }],
   total: { type: Number, required: true },
   dateOrder: { type: Date, required: true },
-  status: { type: String, enum: ['pending', 'shipped', 'delivered', 'cancelled'], required: true }
+  status: { type: String, enum: ['pending', 'completed', 'cancelled'],   default: 'pending'  }
+});
+
+orderSchema.pre('save', function (next) {
+  this.updated_at = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Order', orderSchema);
