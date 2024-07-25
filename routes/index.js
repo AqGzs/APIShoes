@@ -12,7 +12,7 @@ const stockRoutes = require('./stocks');
 router.use('/stocks', stockRoutes);
 router.use('/api/shoes', shoesRoutes);
 router.use('/api/auth', authRoutes);
-router.use('/api/favorites', favoritesRoutes);
+router.use('/api/favorites', favoriteRoutes);
 router.use('/api/users',userRoutes);
 router.use('/api/carts',cartRoutes); 
 router.use('/',paymentRoutes)
