@@ -1,4 +1,4 @@
-// routes/stock.js
+// routes/stocks.js
 const express = require('express');
 const router = express.Router();
 const Stock = require('../models/Stock');
@@ -13,6 +13,7 @@ router.post('/', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
 
 // Get all stocks
 router.get('/', async (req, res) => {

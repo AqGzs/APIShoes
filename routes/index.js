@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 const shoesRoutes = require('./shoes');
 const authRoutes = require('./auth');
 const favoriteRoutes = require('./favorites');
@@ -9,7 +10,7 @@ const cartRoutes = require('./carts');
 const paymentRoutes = require('./payment');
 const stockRoutes = require('./stocks');
 
-router.use('/stocks', stockRoutes);
+router.use('/api/stocks', stockRoutes);
 router.use('/api/shoes', shoesRoutes);
 router.use('/api/auth', authRoutes);
 router.use('/api/favorites', favoriteRoutes);
