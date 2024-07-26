@@ -28,10 +28,10 @@ router.get('/user-registrations', async (req, res) => {
   }
 });
 
-// Function to get stock stats grouped by month
+// Get monthly stock stats
 router.get('/stock/monthly', async (req, res) => {
   try {
-    const stocks = await Shoe.aggregate([
+    const stockStats = await Shoe.aggregate([
       { $unwind: '$stocks' },
       { $lookup: { from: 'stocks', localField: 'stocks', foreignField: '_id', as: 'stockDetails' } },
       { $unwind: '$stockDetails' },
@@ -43,7 +43,7 @@ router.get('/stock/monthly', async (req, res) => {
       },
       { $sort: { '_id.year': 1, '_id.month': 1 } }
     ]);
-    res.json(stocks);
+    res.json(stockStats);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
