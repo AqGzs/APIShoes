@@ -10,7 +10,6 @@ const authenticateToken = require('../middlewares/authenticateToken');
 
 const router = express.Router();
 router.use(authenticateToken);
-
 function validateInputData(userId, items) {
   if (!userId || !Array.isArray(items) || items.length === 0) {
     console.log('Validation failed: userId or items are invalid');
@@ -24,9 +23,24 @@ function validateInputData(userId, items) {
   }
   return true;
 }
+
+// Hàm tính tổng giá
+const calculateTotalPrice = async (cartItems) => {
+  const totalPrice = await CartItem.aggregate([
+    { $match: { _id: { $in: cartItems.map(item => item._id) } } },
+    { $lookup: { from: 'stocks', localField: 'stock._id', foreignField: '_id', as: 'stock' } },
+    { $unwind: '$stock' },
+    { $lookup: { from: 'products', localField: 'productId', foreignField: '_id', as: 'product' } },
+    { $unwind: '$product' },
+    { $group: { _id: null, total: { $sum: { $multiply: ['$quantity', '$product.price'] } } } }
+  ]);
+
+  return totalPrice[0]?.total || 0;
+};
+
 router.post('/', async (req, res) => {
   try {
-    const { userId, items } = req.body;
+    const { userId, items, totalPrice } = req.body;
     console.log("Received request body:", req.body);
 
     if (!validateInputData(userId, items)) {
@@ -94,8 +108,10 @@ router.post('/', async (req, res) => {
       cart.items = cart.items.filter(cartItem => !itemsToRemove.includes(cartItem._id.toString()));
     }
 
-    // Tính toán tổng giá và lưu giỏ hàng
-    cart.totalPrice = await calculateTotalPrice(cart.items);
+    // Cập nhật totalPrice từ yêu cầu
+    cart.totalPrice = totalPrice;
+
+    // Lưu giỏ hàng
     await cart.save();
 
     res.status(201).json(cart);
@@ -106,9 +122,12 @@ router.post('/', async (req, res) => {
 });
 
 
+
 router.get('/:userId', verifyOwnership, async (req, res) => {
   try {
     const { userId } = req.params;
+
+    // Lấy thông tin giỏ hàng
     const cart = await Cart.findOne({ userId }).populate({
       path: 'items',
       populate: [
@@ -121,9 +140,17 @@ router.get('/:userId', verifyOwnership, async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy giỏ hàng' });
     }
 
-    res.json(cart);
+    // Lấy thông tin người dùng
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+
+    // Trả về thông tin giỏ hàng và người dùng
+    res.json({ cart, user });
   } catch (error) {
-    console.error('Lỗi khi lấy giỏ hàng:', error.message);
+    console.error('Lỗi khi lấy giỏ hàng và thông tin người dùng:', error.message);
     res.status(500).json({ message: error.message });
   }
 });
@@ -212,19 +239,7 @@ router.delete('/:id', async (req, res) => {
 });
  
 
-// Function to handle updating or creating cart items
-const calculateTotalPrice = async (cartItems) => {
-  const totalPrice = await CartItem.aggregate([
-    { $match: { _id: { $in: cartItems.map(item => item._id) } } },
-    { $lookup: { from: 'stocks', localField: 'stock._id', foreignField: '_id', as: 'stock' } },
-    { $unwind: '$stock' },
-    { $lookup: { from: 'shoes', localField: 'productId', foreignField: '_id', as: 'product' } },
-    { $unwind: '$product' },
-    { $group: { _id: null, total: { $sum: { $multiply: ['$quantity', '$product.price'] } } } }
-  ]);
 
-  return totalPrice[0]?.total || 0;
-};
 
   router.get('/:userId', async (req, res) => {
   try {

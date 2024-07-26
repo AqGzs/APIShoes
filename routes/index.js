@@ -9,7 +9,7 @@ const cartRoutes = require('./carts');
 const paymentRoutes = require('./payment');
 const stockRoutes = require('./stocks');
 
-router.use('/stocks', stockRoutes);
+router.use('/api/stocks', stockRoutes);
 router.use('/api/shoes', shoesRoutes);
 router.use('/api/auth', authRoutes);
 router.use('/api/favorites', favoriteRoutes);
