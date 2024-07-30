@@ -48,7 +48,8 @@ mongoose.connect(uri, {
 // Import the routes index file
 const routes = require('./routes'); // Ensure the path is correct
 app.use('/', routes);
-
+ 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

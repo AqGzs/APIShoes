@@ -14,24 +14,29 @@ const config = {
 };
 
 router.post('/payment', async (req, res) => {
+    const { app_user, amount } = req.body;  // Extracting app_user and amount from the request body
+
+    // Validate the received app_user and amount
+    if (!app_user || !amount) {
+        return res.status(400).json({ error: 'app_user and amount are required' });
+    }
+
     const embed_data = {
-        redirecturl: "https://docs.zalopay.vn/result",
-      
+        // redirecturl: "https://docs.zalopay.vn/result",
     };
-    
 
     const items = [{}];
     const transID = Math.floor(Math.random() * 1000000);
     const order = {
         app_id: config.app_id,
         app_trans_id: `${moment().format('YYMMDD')}_${transID}`, 
-        app_user: "user123",
+        app_user: app_user,  // Using the extracted app_user
         app_time: Date.now(),
         item: JSON.stringify(items),
         embed_data: JSON.stringify(embed_data),
-        amount: 50000,
+        amount: amount,  // Using the extracted amount
         description: `Đơn hàng: #${transID}`,
-        bank_code: "zalopayapp",
+       bank_code: 'zalopayapp',
         callback_url: 'https://f3c7-113-22-221-150.ngrok-free.app/callback'
     };
 
@@ -47,12 +52,18 @@ router.post('/payment', async (req, res) => {
     try {
         const result = await axios.post(config.endpoint, null, { params: order });
         console.log(result.data);
-        res.json(result.data);
+        
+        // Construct the payment URL
+        const orderUrl = `https://qcgateway.zalopay.vn/pay/v2/qr?order=${result.data.zptranstoken}`;
+        res.json({ order_url: orderUrl, ...result.data });
     } catch (error) {
         console.log(error.message);
         res.status(500).send(error.message);
     }
 });
+
+module.exports = router;
+
 
 
 router.post('/callback', async (req, res) => {
