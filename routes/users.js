@@ -4,7 +4,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 const secret = process.env.SECRET_KEY;
-
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 
 // Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
@@ -63,6 +65,68 @@ router.put('/:id', authenticateToken, async (req, res) => {
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+// Configure multer storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir); // Use the directory created or existing
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+// File filter
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Not an image! Please upload an image.'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter
+});
+
+// Endpoint to update user avatar
+router.put('/:userId/avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const avatarPath = req.file.path;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Remove old avatar file if it exists
+    if (user.avatar) {
+      const oldAvatarPath = path.join(__dirname, '..', user.avatar);
+      fs.unlink(oldAvatarPath, (err) => {
+        if (err) {
+          console.error('Failed to remove old avatar:', err);
+        }
+      });
+    }
+
+    // Generate the public URL for the avatar
+    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    user.avatar = avatarUrl;
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update user avatar', error: error.message });
   }
 });
 
