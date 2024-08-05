@@ -3,31 +3,36 @@ const router = express.Router();
 const Shoe = require('../models/Shoe');
 const Stock = require('../models/Stock');
 
-// Create a new shoe
-router.post('/', async (req, res) => {
-  try {
-    const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
+  router.post('/', async (req, res) => {
+    try {
+      const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
 
-    // Create stocks and save them to get their ObjectIds
-    const stockDocuments = await Stock.insertMany(stocks);
-    const stockIds = stockDocuments.map(stock => stock._id);
+      // Ensure stocks is an array and map it to include size and quantity
+      const stockData = stocks.map(stock => ({
+        size: stock.size,
+        quantity: stock.quantity
+      }));
 
-    const newShoe = new Shoe({
-      name,
-      brand,
-      price,
-      stocks: stockIds, // Use the ObjectIds of the stocks
-      colors,
-      imageUrl,
-      descriptions
-    });
+      // Create stocks and save them to get their ObjectIds
+      const stockDocuments = await Stock.insertMany(stockData);
+      const stockIds = stockDocuments.map(stock => stock._id);
 
-    await newShoe.save();
-    res.status(201).json(newShoe);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+      const newShoe = new Shoe({
+        name,
+        brand,
+        price,
+        stocks: stockIds, // Use the ObjectIds of the stocks
+        colors,
+        imageUrl,
+        descriptions
+      });
+
+      await newShoe.save();
+      res.status(201).json(newShoe);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
 
 // Get all shoes
 router.get('/', async (req, res) => {
