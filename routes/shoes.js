@@ -3,11 +3,9 @@ const router = express.Router();
 const Shoe = require('../models/Shoe');
 const Stock = require('../models/Stock');
 
-// Create a new shoe
-router.post('/', async (req, res) => {
-  try {
-    const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
-
+  router.post('/', async (req, res) => {
+    try {
+      const { name, brand, price, stocks, colors, imageUrl, descriptions } = req.body;
     const stockData = stocks.map(stock => ({
       size: stock.size,
       quantity: stock.quantity
@@ -25,13 +23,12 @@ router.post('/', async (req, res) => {
       imageUrl,
       descriptions
     });
-
-    await newShoe.save();
-    res.status(201).json(newShoe);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+      await newShoe.save();
+      res.status(201).json(newShoe);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
 
 
 // Get all shoes

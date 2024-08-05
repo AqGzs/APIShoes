@@ -10,6 +10,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
 
 const router = express.Router();
 router.use(authenticateToken);
+
 function validateInputData(userId, items) {
   if (!userId || !Array.isArray(items) || items.length === 0) {
     console.log('Validation failed: userId or items are invalid');
@@ -84,6 +85,7 @@ router.post('/', async (req, res) => {
       } else {
         // Tạo mới CartItem và thêm vào giỏ hàng
         const cartItem = new CartItem({
+          cartId: cart._id,
           productId: item.productId,
           stock: {
             size: stock.size,
@@ -121,8 +123,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
+// Lấy thông tin giỏ hàng và người dùng
 router.get('/:userId', verifyOwnership, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -154,8 +155,8 @@ router.get('/:userId', verifyOwnership, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-// Update cart item
 
+// Cập nhật mục giỏ hàng
 router.put('/item/:id', async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -210,7 +211,7 @@ router.put('/item/:id', async (req, res) => {
   }
 });
 
-// Delete cart item
+// Xóa mục giỏ hàng
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -234,38 +235,6 @@ router.delete('/:id', async (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error('Error deleting cart item:', error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
- 
-
-
-
-  router.get('/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-
-    // Tìm giỏ hàng của người dùng
-    const cart = await Cart.findOne({ userId }).populate('items'); // Populate để lấy thông tin chi tiết sản phẩm
-
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
-    }
-
-    // Tìm thông tin người dùng
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Trả về thông tin giỏ hàng và thông tin người dùng
-    res.status(200).json({
-      cart,
-      user
-    });
-  } catch (error) {
-    console.error('Error fetching cart and user:', error.message);
     res.status(500).json({ message: error.message });
   }
 });

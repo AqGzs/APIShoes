@@ -9,6 +9,7 @@ const userRoutes = require('./users');
 const cartRoutes = require('./carts');
 const orderRoutes = require('./orders');
 const stockRoutes = require('./stocks');
+const orderRoutes = require('./orders');
 const statsRoutes = require('./stats');
 
 router.use('/api/stocks', stockRoutes);

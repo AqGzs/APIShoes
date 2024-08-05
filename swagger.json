@@ -165,9 +165,15 @@
           },
           "stock": {
             "$ref": "#/components/schemas/Stock"
+          },  
+          "quantity": {
+            "type": "number"
+          },
+          "cartId": {
+            "type": "string"
           }
         },
-        "required": ["shoeId", "stock"]
+        "required": ["shoeId", "stock","quantity","cartId"]
       },
 
       "Cart": {
@@ -184,10 +190,14 @@
             "items": {
               "$ref": "#/components/schemas/CartItem"
             }
+          },
+          "totalPrice": {
+            "type": "number"
           }
         },
-        "required": ["userId", "items"]
+        "required": ["userId", "items","totalPrice"]
       },
+      
       "Category": {
         "type": "object",
         "properties": {

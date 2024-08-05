@@ -6,7 +6,9 @@ const orderSchema = new mongoose.Schema({
   total: { type: Number, required: true }, // Tổng số tiền của đơn hàng
   dateOrder: { type: Date, required: true, default: Date.now }, // Ngày đặt hàng
   status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'completed' }, // Trạng thái của đơn hàng
-  updated_at: { type: Date } // Thời gian cập nhật đơn hàng
+  paymentMethod: { type: String, enum: ['paypal', 'zalopay', 'cod'], required: true }, // Phương thức thanh toán
+  paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], required: true, default: 'completed' }, // Trạng thái thanh toán
+  createdAt: { type: Date, default: Date.now }
 });
 
 // Middleware để cập nhật trường 'updated_at' trước khi lưu
