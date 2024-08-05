@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Shoe = require('../models/Shoe'); // Ensure the path is correct
+const Shoe = require('../models/Shoe'); 
 
 // Endpoint để lấy các sản phẩm yêu thích
 router.get('/', async (req, res) => {
