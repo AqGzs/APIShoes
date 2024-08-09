@@ -206,9 +206,12 @@
           },
           "name": {
             "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
           }
         },
-        "required": ["name"]
+        "required": ["name","imageUrl"]
       },
       "Payment": {
         "type": "object",
@@ -316,7 +319,7 @@
               "description": "Shoe not found"
             }
           }
-        },
+        },  
         "put": {
           "summary": "Update a shoe by ID",
           "parameters": [
@@ -370,6 +373,36 @@
           "responses": {
             "204": {
               "description": "Shoe deleted successfully"
+            },
+            "404": {
+              "description": "Shoe not found"
+            }
+          }
+        }
+      },
+      "/shoes/brand/{brand}": {
+        "get": {
+          "summary": "Get shoes by brand",
+          "parameters": [
+            {
+              "name": "brand",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "get shoes by brand",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Shoe"
+                  }
+                }
+              }
             },
             "404": {
               "description": "Shoe not found"

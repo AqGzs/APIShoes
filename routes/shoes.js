@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Shoe = require('../models/Shoe');
 const Stock = require('../models/Stock');
+const Category = require('../models/Category');
 
   router.post('/', async (req, res) => {
     try {
@@ -96,5 +97,26 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+router.get('/brand/:brand', async (req, res) => {
+  try {
+    const brandName = req.params.brand;
+    console.log("Searching for category:", brandName); // Thêm dòng này để kiểm tra
+
+    const category = await Category.findOne({ name: brandName });
+    if (!category) {
+      return res.status(404).json({ message: 'Không tìm thấy danh mục này.' });
+    }
+
+    const shoes = await Shoe.find({ brand: category.name }).populate('stocks');
+    if (!shoes.length) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào cho danh mục này.' });
+    }
+
+    res.json(shoes);
+  } catch (error) {
+    res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình tìm kiếm sản phẩm.', error });
+  }
+});
+
 
 module.exports = router;
